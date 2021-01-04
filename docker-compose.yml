@@ -13,8 +13,18 @@ services:
             - '8080:8080'
         depends_on: 
             - mongo
+            - postgres
     mongo:
         container_name: mongodb
         image: mongo
         ports:
             - '27017:27017'
+    postgres:
+        container_name: postgres
+        image: postgres
+        ports:
+            - '5432:5432'
+        env_file:
+            - testing.env
+        volumes:
+            - ./data:/var/lib/postgresql/
