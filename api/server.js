@@ -1,14 +1,16 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const connectDb = require('./connection');
+const mongoDb = require('./Connections/mongoDbConnection');
+const { Sequelize } = require('sequelize');
+const sqlConnection = require('./Connections/sqlConnection');
 const User = require('./User/Model');
+const sequelize = require('./Connections/sqlConnection');
 
 var jsonParser = bodyParser.json();
 var urlEncodedParser = bodyParser.urlencoded({extended: false});
 
 const port = 8080;
-const host = '0.0.0.0';
 
 app.get('/', (req, res) => res.send('Hello!'));
 
@@ -27,9 +29,19 @@ app.post('/users-create', jsonParser, async (req, res) => {
 });
 
 app.listen(port, function() {
-    console.log(`App is listening on port http://${host}:${port}!`)
+    console.log(`App is listening on port ${port}!`)
 
-    connectDb().then(() => {
+    mongoDb().then(() => {
         console.log('MongoDb connected');
     });
+
+    try {
+        sqlConnection().authenticate()
+            .then(() => {
+                console.log('Postgres connection has been established.');
+            });
+    }
+    catch (error) {
+        console.error('Failed to connect to postgres:', error);
+    }
 });
